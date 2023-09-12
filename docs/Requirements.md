@@ -1,13 +1,13 @@
 # Proyecto Final Privado ADD
 # Sistema de Gestión de Nomina
 
-    La empresa T Consulting, S.A. lo ha contratado a usted para que desarrolle e implemente un software para Gestionar la nómina.
+La empresa T Consulting, S.A. lo ha contratado a usted para que desarrolle e implemente un software para Gestionar la nómina.
 El sistema de nómina deberá ser multiempresas.
 
 ## Funcionamiento
 
 ## Anticipo Quincenal
-    La empresa proporciona a cada empleado un anticipo del 45% sobre el salario base en la primera quincena del mes.
+La empresa proporciona a cada empleado un anticipo del 45% sobre el salario base en la primera quincena del mes.
 Cada empleado deberá contar con un expediente en el sistema en el cual se puedan consultar todos los documentos (formato pdf) que presento para su contratación.
     • Copia DPI
     • Títulos y diplomas
