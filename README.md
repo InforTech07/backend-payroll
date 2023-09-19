@@ -40,3 +40,8 @@ jwt/create/
 /users/activation/
 uid=MQ
 token= bulj71-42e515729577978bb0eeb640c5c40d1b
+
+{
+    "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY5NzU5NjgwMCwianRpIjoiMjQyMzBkZDIxNmUyNDBhZDk2ODc5OWIxYzExMzU4YzciLCJ1c2VyX2lkIjoxfQ.4ddR2FEnhQvv-CTn_mL8HrYznv-g68MmfEM8_Mc0ux0",
+    "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk1NjA5NjAwLCJqdGkiOiIwZDNlNGU5YjU3YWQ0NmYwYWFiMGZhODI3MTk5MWFjZCIsInVzZXJfaWQiOjF9.DLcQSmMgw03W4MynQXjreJx6Jw07qc3Z36ZJIG-Rr10"
+}

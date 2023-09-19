@@ -1,14 +1,12 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 
-from . import models
+from .models import User
 
-from django.contrib.auth import get_user_model
-User = get_user_model()
+class CustomUserAdmin(UserAdmin):
+    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'is_active',)
+    list_filter = ('email', 'first_name', 'last_name', 'is_staff', 'is_active',)
+    search_fields = ('email', 'first_name', 'last_name',)
+    ordering = ('email',)
 
-class UserAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'email','is_staff','is_superuser','is_active','last_login' )
-    list_display_links = ('first_name', 'last_name', 'email', )
-    search_fields = ('first_name', 'last_name', 'email','is_staff','is_superuser','is_active','last_login' )
-    list_per_page = 25
-
-admin.site.register(User, UserAdmin)
+admin.site.register(User, CustomUserAdmin)
