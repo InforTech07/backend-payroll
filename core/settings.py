@@ -59,6 +59,7 @@ INSTALLED_APPS= DJANGO_APPS + PROJECT_APPS  + THIRD_PARTY_APPS
 
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -103,12 +104,15 @@ DATABASES = {
 #     "default": env.db("DATABASE_URL", default="postgres:///ninerogues"),
 # }
 # DATABASES["default"]["ATOMIC_REQUESTS"] = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
     'http://127.0.0.1:3000',
-    'https://vudera.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -116,7 +120,6 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
     'http://127.0.0.1:3000',
-    'https://vudera.com',
 ]
 
 PASSWORD_HASHERS = [

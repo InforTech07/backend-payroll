@@ -3,3 +3,9 @@ db.sqlite3
 __pycache__
 core/.env
 media/*
+apps/company/migrations/*
+apps/employee/migrations/*
+apps/media/migrations/*
+apps/payroll/migrations/*
+apps/store/migrations/*
+apps/user/migrations/*

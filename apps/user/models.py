@@ -27,6 +27,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username']
     role = models.CharField(max_length=255, default='user')
     picture = models.CharField(max_length=200, blank=True, null=True)
+    password = models.CharField(max_length=200, blank=True, null=True)
     is_active = models.BooleanField(
         'active status',
         default=True,
@@ -34,7 +35,7 @@ class User(AbstractUser):
             'help eshteht to show if the user is active'
         )
     )
-    is_dafault_password = models.BooleanField(
+    is_default_password = models.BooleanField(
         'default password status',
         default=True,
         help_text=(
