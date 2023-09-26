@@ -36,14 +36,13 @@ class JobPositionSerializer(serializers.ModelSerializer):
     Serializer for the job position model.
     """
     # department = DepartmentSerializer(read_only=True)
-    # company = CompanySerializer(read_only=True)
+    #   company = CompanySerializer(read_only=True)
     class Meta:
         model = JobPosition
         fields = (
             'id',
             'name',
             'description',
-            'departament',
             'company',
         )
 
@@ -64,12 +63,11 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'picture',
             'dpi',
             'birth_date',
+            'date_hiring',
+            'date_completion',
             'gender',
+            'department',
             'base_salary',
-            'dpi_file',
-            'degree_file',
-            'criminal_record_file',
-            'head_department',
             'job_position',
             'user',
             'company',
@@ -104,10 +102,9 @@ class EmployeeSerializer(serializers.ModelSerializer):
                 birth_date=self.validated_data.get('birth_date'),
                 gender=self.validated_data.get('gender'),
                 base_salary=self.validated_data.get('base_salary'),
-                dpi_file=self.validated_data.get('dpi_file'),
-                degree_file=self.validated_data.get('degree_file'),
-                criminal_record_file=self.validated_data.get('criminal_record_file'),
-                head_department=self.validated_data.get('head_department'),
+                department=self.validated_data.get('department'),
+                date_hiring=self.validated_data.get('date_hiring'),
+                date_completion=self.validated_data.get('date_completion'),
                 job_position=self.validated_data.get('job_position'),
                 user=employee_user,
                 company=self.validated_data.get('company')
