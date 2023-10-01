@@ -60,7 +60,7 @@ class Employee(EmployeeBase):
     base_salary = models.DecimalField(max_digits=10, decimal_places=2)
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='employee_department')
     job_position = models.ForeignKey(JobPosition, on_delete=models.CASCADE, related_name='employee_job_position')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='employee_user')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='employee_user', blank=True, null=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='employee_company')
 
     def __str__(self):
@@ -112,7 +112,7 @@ class Employee(EmployeeBase):
             return severance_pay
         else:
             return 0
-    D
+        
 class EmployeeDocument(EmployeeBase):
     """
     Model for an employee document.

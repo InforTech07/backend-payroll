@@ -15,7 +15,11 @@ from rest_framework.validators import UniqueValidator
 
 # Models
 from apps.user.models import User
+from apps.company.models import Company
 
+# Serializers
+#from apps.company.serializers import CompanySerializer
+from apps.company.serializers import CompanySerializer
 
 # libs
 #from jwt
@@ -25,7 +29,10 @@ from datetime import timedelta
 
 class UserModelSerializer(serializers.ModelSerializer):
     """User model serializer."""
-
+    # company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all(), required=False)
+    ##obtener el objeto de la compañia
+    #company = CompanySerializer(read_only=True)
+    company = CompanySerializer(read_only=True)
     class Meta:
         """Meta class."""
         model = User
@@ -37,31 +44,15 @@ class UserModelSerializer(serializers.ModelSerializer):
             'role',
             'is_default_password',
             'password',
+            'company',
         )
-    # def create(self, validated_data):
-    #     """Create and return a new user."""
-    #     print('create user')
-    #     validated_data['password'] = make_password(validated_data['password'])
-    #     return super(UserModelSerializer, self).create(validated_data)
-
-    # def create_super_user(self, data):
-    #     """Create super user."""
-    #     user = User.objects.create(**data, role='superadmin')
-    #     return user
-    # def create_user_admin(self, data):
-    #     """Create super user."""
-    #     user = User.objects.create(**data, role='admin')
-    #     return user
-    # def create_user(self, data):
-    #     """Create super user."""
-    #     user = User.objects.create(**data, role='user')
-    #     return user
 
 
 class UserLoginSerializer(serializers.Serializer):
     """User login serializer."""
     email = serializers.EmailField()
     password = serializers.CharField(min_length=8, max_length=128, write_only=True)
+    #company = CompanySerializer(read_only=True)
 
     class Meta:
         """Meta class."""
@@ -73,6 +64,7 @@ class UserLoginSerializer(serializers.Serializer):
             'picture',
             'role',
             'is_default_password',
+            'company',
         )
 
     def validate(self, data):

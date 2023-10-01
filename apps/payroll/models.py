@@ -29,6 +29,7 @@ class PayrollPeriod(PayrollBase):
         ('MENSUAL', 'Mensual'),
     )
     type = models.CharField(max_length=255, choices=TYPE_PAYROLL)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='payroll_period_company')
 
     def __str__(self):
         return self.name
@@ -43,6 +44,7 @@ class PayrollConcept(PayrollBase):
         ('DEDUCCION', 'Deduccion'),
     )
     type = models.CharField(max_length=255, choices=TYPES_CONCEPT) # ingreso, deduccion
+    description = models.TextField()
     value = models.DecimalField(max_digits=10, decimal_places=2)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='payroll_concept_company')
 

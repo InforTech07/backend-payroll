@@ -19,14 +19,11 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.filter(is_active=True)
     serializer_class = DepartmentSerializer
 
-    #get department by company
-    # def department_by_company(self, request, pk=None):
-    #     try:
-    #         department = Department.objects.filter(company=pk)
-    #         serializer = DepartmentSerializer(department, many=True)
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #     except Exception as e:
-    #         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({'message': 'Departamento eliminado correctamente'}, status=status.HTTP_200_OK)
+
         
 
 
@@ -35,10 +32,25 @@ class JobPositionViewSet(viewsets.ModelViewSet):
     queryset = JobPosition.objects.filter(is_active=True)
     serializer_class = JobPositionSerializer
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({'message': 'Puesto eliminado correctamente'}, status=status.HTTP_200_OK)
 
 class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.filter(is_active=True)
     serializer_class = EmployeeSerializer
+
+    @action(detail=False, methods=['get'])
+    def get_employees(self, request):
+        employees = Employee.objects.filter(is_active=True, company=request.query_params.get('company'))
+        serializer = EmployeeSerializer(employees, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({'message': 'Empleado eliminado correctamente'}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'])
     def calculte_salary(self, request):

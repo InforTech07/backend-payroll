@@ -26,14 +26,14 @@ class MediaBase(models.Model):
         abstract = True
 
 class PayrollImage(MediaBase):
-    picture_uri = models.ImageField(upload_to='images')
+    picture = models.ImageField(upload_to='images')
 
     def __str__(self):
         return "Image at " + str(self.created_at)
     
 
 class PayrollFile(MediaBase):
-    file_uri = models.FileField(upload_to='files')
+    file = models.FileField(upload_to='files')
 
     def __str__(self):
         return "File at " + str(self.created_at)

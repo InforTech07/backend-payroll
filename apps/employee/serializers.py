@@ -52,6 +52,9 @@ class EmployeeSerializer(serializers.ModelSerializer):
     """
     email = serializers.EmailField(write_only=True, required=False)
     create_user = serializers.BooleanField(write_only=True, required=False)
+    user = UserModelSerializer(read_only=True)
+    # obtener el nombre de la posicion
+    #job_position = serializers.CharField(source='job_position.name', read_only=True)
 
     class Meta:
         model = Employee
@@ -59,6 +62,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'id',
             'first_name',
             'last_name',
+            'address',
             'phone',
             'picture',
             'dpi',
@@ -87,6 +91,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
                 username=self.validated_data.get('first_name') + self.validated_data.get('last_name'),
                 password= make_password('@Password123'),
                 picture=self.validated_data.get('picture', None),
+                company=self.validated_data.get('company'),
                 is_default_password=True,
                 role='user'
             )
@@ -96,6 +101,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
             employee = Employee.objects.create(
                 first_name=self.validated_data.get('first_name'),
                 last_name=self.validated_data.get('last_name'),
+                address=self.validated_data.get('address'),
                 phone=self.validated_data.get('phone'),
                 picture=self.validated_data.get('picture'),
                 dpi=self.validated_data.get('dpi'),

@@ -9,6 +9,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 
+from apps.company.models import Company
+
 
 class User(AbstractUser):
     """Custom User model.
@@ -28,6 +30,7 @@ class User(AbstractUser):
     role = models.CharField(max_length=255, default='user')
     picture = models.CharField(max_length=200, blank=True, null=True)
     password = models.CharField(max_length=200, blank=True, null=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='user', blank=True, null=True)
     is_active = models.BooleanField(
         'active status',
         default=True,
