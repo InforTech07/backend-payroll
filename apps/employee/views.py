@@ -1,10 +1,17 @@
 from django.shortcuts import render
 
 # models
-from apps.employee.models import Department, JobPosition, Employee, FamilyMember, SalaryIncrease
+from apps.employee.models import Department, JobPosition, Employee, FamilyMember, SalaryIncrease, EmployeeDocument
 
 # serializers
-from apps.employee.serializers import DepartmentSerializer, JobPositionSerializer, EmployeeSerializer, FamilyMemberSerializer, SalaryIncreaseSerializer
+from apps.employee.serializers import (
+                DepartmentSerializer, 
+                JobPositionSerializer, 
+                EmployeeSerializer, 
+                FamilyMemberSerializer, 
+                SalaryIncreaseSerializer, 
+                EmployeeDocumentSerializer
+            )
 
 
 # rest_framework
@@ -68,7 +75,28 @@ class FamilyMemberViewSet(viewsets.ModelViewSet):
     queryset = FamilyMember.objects.filter(is_active=True)
     serializer_class = FamilyMemberSerializer
 
+    @action(detail=False, methods=['get'])
+    def get_family_members(self, request):
+        family_members = FamilyMember.objects.filter(is_active=True, employee=request.query_params.get('employee'))
+        serializer = FamilyMemberSerializer(family_members, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class SalaryIncreaseViewSet(viewsets.ModelViewSet):
     queryset = SalaryIncrease.objects.filter(is_active=True)
     serializer_class = SalaryIncreaseSerializer
+
+class EmployeeDocumentViewSet(viewsets.ModelViewSet):
+    queryset = EmployeeDocument.objects.filter(is_active=True)
+    serializer_class = EmployeeDocumentSerializer
+
+    @action(detail=False, methods=['get'])
+    def get_documents(self, request):
+        documents = EmployeeDocument.objects.filter(is_active=True, employee=request.query_params.get('employee'))
+        serializer = EmployeeDocumentSerializer(documents, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({'message': 'Documento eliminado correctamente'}, status=status.HTTP_200_OK)

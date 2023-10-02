@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 #models
 from apps.company.models import Company
-from apps.employee.models import Department, JobPosition, Employee, FamilyMember, SalaryIncrease
+from apps.employee.models import Department, JobPosition, Employee, FamilyMember, SalaryIncrease, EmployeeDocument
 from django.contrib.auth.hashers import make_password
 
 from apps.user.models import User
@@ -14,6 +14,7 @@ from apps.user.models import User
 #serializers
 from apps.company.serializers import CompanySerializer
 from apps.user.serializers import UserModelSerializer
+
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -53,9 +54,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(write_only=True, required=False)
     create_user = serializers.BooleanField(write_only=True, required=False)
     user = UserModelSerializer(read_only=True)
-    # obtener el nombre de la posicion
-    #job_position = serializers.CharField(source='job_position.name', read_only=True)
-
+    job_position_name = serializers.CharField(source='job_position.name', read_only=True)
     class Meta:
         model = Employee
         fields = (
@@ -72,7 +71,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'gender',
             'department',
             'base_salary',
-            'job_position',
+            'job_position_name',
+            'job_position', 
             'user',
             'company',
             'email',
@@ -129,13 +129,7 @@ class FamilyMemberSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = FamilyMember
-        fields = (
-            'id',
-            'first_name',
-            'last_name',
-            'picture',
-            'employee',
-        )
+        fields = '__all__'
 
 class SalaryIncreaseSerializer(serializers.ModelSerializer):
     """
@@ -165,3 +159,16 @@ class SalaryIncreaseSerializer(serializers.ModelSerializer):
         employee.base_salary = employee.base_salary + salary_increase.amount
         employee.save()
         return salary_increase
+    
+class EmployeeDocumentSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the employee document model.
+    """
+    class Meta:
+        model = EmployeeDocument
+        fields = (
+            'id',
+            'name',
+            'file',
+            'employee',
+        )
