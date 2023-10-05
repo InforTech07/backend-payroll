@@ -6,7 +6,20 @@ from rest_framework import serializers
 
 #models
 from apps.company.models import Company
-from apps.employee.models import Department, JobPosition, Employee, FamilyMember, SalaryIncrease, EmployeeDocument
+from apps.employee.models import (Department, 
+                                  JobPosition, 
+                                  Employee, 
+                                  FamilyMember, 
+                                  SalaryIncrease, 
+                                  EmployeeDocument,
+                                  Overtime,
+                                  SalesCommission,
+                                  ProductionBonus,
+                                  )
+from apps.payroll.models import (
+    PayrollPeriod,
+    Income,
+)
 from django.contrib.auth.hashers import make_password
 
 from apps.user.models import User
@@ -71,6 +84,9 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'gender',
             'department',
             'base_salary',
+            'base_salary_initial',
+            'method_payment',
+            'head_department',
             'job_position_name',
             'job_position', 
             'user',
@@ -108,6 +124,9 @@ class EmployeeSerializer(serializers.ModelSerializer):
                 birth_date=self.validated_data.get('birth_date'),
                 gender=self.validated_data.get('gender'),
                 base_salary=self.validated_data.get('base_salary'),
+                base_salary_initial=self.validated_data.get('base_salary'),
+                method_payment=self.validated_data.get('method_payment'),
+                head_department=self.validated_data.get('head_department'),
                 department=self.validated_data.get('department'),
                 date_hiring=self.validated_data.get('date_hiring'),
                 date_completion=self.validated_data.get('date_completion'),
@@ -172,3 +191,70 @@ class EmployeeDocumentSerializer(serializers.ModelSerializer):
             'file',
             'employee',
         )
+
+class OvertimeSerializer(serializers.ModelSerializer):
+    """
+    Serializaer for overtime employee
+    """
+    class Meta:
+        model = Overtime
+        fields = '__all__'
+
+
+class SalesComissionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the sales commission model.
+    """
+    class Meta:
+        model = SalesCommission
+        fields = '__all__'
+
+    def save(self, *args, **kwargs):
+        """
+        Save a sales commission.
+        • 0 – 100,000 en ventas 0.0%
+        • 100,001 – 200,000 en ventas 2.5 %
+        • 200,001 – 400,000 en ventas 3.5 %
+        • 400,001 en adelante 4.5%
+        """
+        sales = self.validated_data.get('sales')
+        current_commission = 0
+        if int(sales) <= 100000:
+            current_commission = 0
+        elif int(sales) <= 200000:
+            current_commission = int(sales) * 0.025
+            print(current_commission)
+        elif int(sales) <= 400000:
+            current_commission = int(sales) * 0.035
+        else:
+            current_commission = int(sales) * 0.045
+        sales_commission = SalesCommission.objects.create(
+            sales=sales,
+            commission=current_commission,
+            employee=self.validated_data.get('employee')
+        )
+        sales_commission.save()
+        return sales_commission
+    
+class ProductionBonusSerializer(serializers.ModelSerializer):
+    """
+    Serializer for ProductionBonus
+    cinco centavos por pieza elaborada
+    """
+    class Meta:
+        model = ProductionBonus
+        fields = '__all__'
+    
+    def save(self, *args, **kwargs):
+        production = self.validated_data.get('production')
+        current_bonus = int(production) * 0.05
+        production_bonus = ProductionBonus.objects.create(
+            production=production,
+            bonus=current_bonus,
+            employee=self.validated_data.get('employee')
+        )
+        production_bonus.save()
+        return production_bonus
+    
+
+

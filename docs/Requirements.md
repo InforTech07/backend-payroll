@@ -35,7 +35,7 @@ Es importante saber, que elsistema debe de realizar la Generación de la Póliza
 
 Se necesita generar la póliza para registrar las partidas por cuotas patronales y labores del IGSS.
 
-Cuando se cierre la nómina del mes de junio el sistema contara con una opción para general la planilla del Bono-14 y sus respectivos recibos.
+Cuando se cierre la nómina del mes de junio CHAel sistema contara con una opción para general la planilla del Bono-14 y sus respectivos recibos.
 Al concluir la planilla del 30 de noviembre el sistema deberá generar los cálculosrespectivos de la planilla para Aguinaldo y sus respectivos recibos.
 
 El sistema deberá contar con una opción para generar los cálculos de la Liquidación Laboral

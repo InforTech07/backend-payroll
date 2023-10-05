@@ -18,9 +18,21 @@ class PayrollPeriodViewSet(viewsets.ModelViewSet):
     queryset = PayrollPeriod.objects.all()
     serializer_class = PayrollPeriodSerializer
 
+    @action(detail=False, methods=['get'])
+    def get_payroll_periods(self, request):
+        payroll_periods = PayrollPeriod.objects.filter(is_active=True, company=request.query_params.get('company'))
+        serializer = PayrollPeriodSerializer(payroll_periods, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 class PayrollConceptViewSet(viewsets.ModelViewSet):
     queryset = PayrollConcept.objects.all()
     serializer_class = PayrollConceptSerializer
+
+    @action(detail=False, methods=['get'])
+    def get_payroll_concepts(self, request):
+        payroll_concepts = PayrollConcept.objects.filter(is_active=True, company=request.query_params.get('company'))
+        serializer = PayrollConceptSerializer(payroll_concepts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class PayrollViewSet(viewsets.ModelViewSet):
     queryset = Payroll.objects.all()
