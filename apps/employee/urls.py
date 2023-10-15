@@ -11,9 +11,6 @@ from apps.employee.views import (
                         FamilyMemberViewSet, 
                         SalaryIncreaseViewSet, 
                         EmployeeDocumentViewSet,
-                        OvertimeViewSet,
-                        SalesCommissionViewSet,
-                        ProductionBonusViewSet,
                         )
 
 # department_by_company = DepartmentViewSet.as_view({
@@ -26,13 +23,9 @@ router.register(r'department', DepartmentViewSet, basename='department')
 # router.register(r'department-by-company', DepartmentViewSet.department_by_company, basename='department-by-company')
 router.register(r'job-position', JobPositionViewSet, basename='job-position')
 router.register(r'employee', EmployeeViewSet, basename='employee')
-router.register(r'employee-document', EmployeeDocumentViewSet, basename='employee-document')
-router.register(r'family-member', FamilyMemberViewSet, basename='family-member')
-router.register(r'salary-increase', SalaryIncreaseViewSet, basename='salary-increase')
-router.register(r'overtime', OvertimeViewSet, basename='overtime')
-router.register(r'sales-commission', SalesCommissionViewSet, basename='sales-commission')
-router.register(r'production-bonus', ProductionBonusViewSet, basename='production-bonus')
-
+router.register(r'employee_document', EmployeeDocumentViewSet, basename='employee_document')
+router.register(r'family_member', FamilyMemberViewSet, basename='family_member')
+router.register(r'salary_increase', SalaryIncreaseViewSet, basename='salary_increase')
 
 urlpatterns = [
     path('', include(router.urls)),

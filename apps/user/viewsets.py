@@ -58,6 +58,29 @@ class UserLoginViewSet(viewsets.ModelViewSet):
         # user = serializer.save()
         # data = self.get_serializer(user).data
         return Response(data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['get'])
+    def verify_account(self, request):
+        """Verify exist account."""
+        user = User.objects.filter(email=request.query_params.get('email'))
+        if user.exists():
+            user = user.first()
+            data = UserModelSerializer(user).data
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    @action(detail=False, methods=['post'])
+    def reset_password(self, request):
+        """Set password user."""
+        user = User.objects.filter(id=request.data.get('id'))
+        if user.exists():
+            user = user.first()
+            user.set_password(request.data.get('password'))
+            user.is_default_password = False
+            user.save()
+            #data = UserModelSerializer(user).data
+            return Response({'message': 'Password reset successfully.'}, status=status.HTTP_200_OK)
 
 
     # def get_permissions(self):
@@ -245,3 +268,24 @@ class UserLoginViewSet(viewsets.ModelViewSet):
     #     serializer.is_valid(raise_exception=True)
     #     self.perform_update(serializer)
     #     return Response(serializer.data)
+
+class ResetPasswordViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.filter(is_active=True)
+    serializer_class = UserLoginSerializer
+
+    @action(detail=False, methods=['post'])
+    def reset_password(self, request):
+        """Set password user."""
+        account = self.exist_account(request.data.get('email'))
+        if not account:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        if account['is_verified']:
+            serializer = UserResetPasswordSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(data=request.data)
+            data = {
+                'message': 'Password reset successfully.'
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'User not verified'}, status=status.HTTP_404_NOT_FOUND)

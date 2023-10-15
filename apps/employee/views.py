@@ -2,16 +2,13 @@ from django.shortcuts import render
 
 # models
 from apps.employee.models import (
-        Department, 
-        JobPosition, 
-        Employee, 
-        FamilyMember, 
-        SalaryIncrease, 
-        EmployeeDocument,
-        Overtime,
-        SalesCommission,
-        ProductionBonus,
-)
+                            Department, 
+                            JobPosition, 
+                            Employee, 
+                            FamilyMember, 
+                            SalaryIncrease, 
+                            EmployeeDocument,
+                            )
 
 # serializers
 from apps.employee.serializers import (
@@ -21,9 +18,6 @@ from apps.employee.serializers import (
                 FamilyMemberSerializer, 
                 SalaryIncreaseSerializer, 
                 EmployeeDocumentSerializer,
-                OvertimeSerializer,
-                SalesComissionSerializer,
-                ProductionBonusSerializer,
             )
 
 
@@ -39,6 +33,13 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.filter(is_active=True)
     serializer_class = DepartmentSerializer
 
+    @action(detail=False, methods=['get'])
+    def get_departments_by_company(self, request):
+        departments = Department.objects.filter(is_active=True, company=request.query_params.get('company'))
+        serializer = DepartmentSerializer(departments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -49,6 +50,12 @@ class JobPositionViewSet(viewsets.ModelViewSet):
     queryset = JobPosition.objects.filter(is_active=True)
     serializer_class = JobPositionSerializer
 
+    @action(detail=False, methods=['get'])
+    def get_job_positions_by_company(self, request):
+        job_positions = JobPosition.objects.filter(is_active=True, company=request.query_params.get('company'))
+        serializer = JobPositionSerializer(job_positions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -110,16 +117,3 @@ class EmployeeDocumentViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({'message': 'Documento eliminado correctamente'}, status=status.HTTP_200_OK)
-    
-
-class OvertimeViewSet(viewsets.ModelViewSet):
-    queryset = Overtime.objects.filter(is_active=True)
-    serializer_class = OvertimeSerializer
-
-class SalesCommissionViewSet(viewsets.ModelViewSet):
-    queryset = SalesCommission.objects.filter(is_active=True)
-    serializer_class = SalesComissionSerializer
-
-class ProductionBonusViewSet(viewsets.ModelViewSet):
-    queryset = ProductionBonus.objects.filter(is_active=True)
-    serializer_class = ProductionBonusSerializer

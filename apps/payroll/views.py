@@ -2,10 +2,24 @@ from django.shortcuts import render
 
 # models
 from apps.employee.models import Employee
-from apps.payroll.models import PayrollPeriod, PayrollConcept, Payroll, Deduction, Income
+from apps.payroll.models import (
+                                PayrollPeriod, 
+                                Payroll, 
+                                PayrollDeduction, 
+                                PayrollIncome, 
+                                PayrollAccountingTransaction,
+                                PayrollConcept,
+                            )
 
 # serializers
-from apps.payroll.serializers import PayrollSerializer, PayrollPeriodSerializer, PayrollConceptSerializer, DeductionSerializer, IncomeSerializer
+from apps.payroll.serializers import (
+                                PayrollSerializer, 
+                                PayrollPeriodSerializer, 
+                                PayrollDeductionSerializer,
+                                PayrollIncomeSerializer,
+                                PayrollAccountingTransactionSerializer,
+                                PayrollConceptSerializer,
+                                )
 
 # rest_framework
 from rest_framework import viewsets, status
@@ -20,23 +34,49 @@ class PayrollPeriodViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def get_payroll_periods(self, request):
-        payroll_periods = PayrollPeriod.objects.filter(is_active=True, company=request.query_params.get('company'))
+        payroll_periods = PayrollPeriod.objects.filter(company=request.query_params.get('company'))
         serializer = PayrollPeriodSerializer(payroll_periods, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-class PayrollConceptViewSet(viewsets.ModelViewSet):
-    queryset = PayrollConcept.objects.all()
-    serializer_class = PayrollConceptSerializer
-
-    @action(detail=False, methods=['get'])
-    def get_payroll_concepts(self, request):
-        payroll_concepts = PayrollConcept.objects.filter(is_active=True, company=request.query_params.get('company'))
-        serializer = PayrollConceptSerializer(payroll_concepts, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class PayrollViewSet(viewsets.ModelViewSet):
     queryset = Payroll.objects.all()
     serializer_class = PayrollSerializer
+
+    @action(detail=False, methods=['get'])
+    def get_payrolls(self,request):
+        payrolls = Payroll.objects.filter(company=request.query_params.get('company'))
+        serializer = PayrollSerializer(payrolls, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def generate_prev_payroll(self, request):
+        payroll_period_id = request.query_params.get('payroll_period')
+        company_id = request.query_params.get('company')
+        try:
+            payroll_period_instance = PayrollPeriod.objects.get(id=payroll_period_id)
+            if payroll_period_instance is None:
+                return Response({'message': 'Periodo de planilla no existe'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                employees = Employee.objects.filter(is_active=True, company=company_id)
+                payroll_prev = []
+                for employee in employees:
+                    result = employee.calculte_payroll_monthly(payroll_period_instance)
+                    payroll = Payroll()
+                    payroll.employee_name = employee.first_name + ' ' + employee.last_name
+                    payroll.employee = employee
+                    payroll.total = result['total_salary']
+                    payroll.incomes = result['total_income']
+                    payroll.deductions = result['total_deduction']
+                    payroll.salary_base = employee.base_salary
+                    payroll.social_insurance_employee = result['social_insurance_employee']
+                    payroll.social_insurance_company = result['social_insurance_company']
+                    payroll.payroll_period = payroll_period_instance
+                    payroll_prev.append(payroll)
+                serializer = PayrollSerializer(payroll_prev, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        except PayrollPeriod.DoesNotExist:
+            return Response({'message': 'Periodo de planilla no existe'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['post'])
     def generate_payroll(self, request):
@@ -49,21 +89,18 @@ class PayrollViewSet(viewsets.ModelViewSet):
         employees = Employee.objects.filter(is_active=True)
         for employee in employees:
             total_salary = employee.calculte_total_salary()
-            print(total_salary)
-            print("pendiente")
-            print(date.today())
-            #print(employee)
-            #print(payroll_period.id)
-            # payroll = Payroll.objects.create(
-            #     employee=employee,
-            #     payroll_period=payroll_period,
-            #     data_generated=date.today(),
-            #     total=total_salary,
-            #     status_payroll="Pendiente"
-            # )
-            # payroll.save()
+            payroll = Payroll.objects.create(
+                employee=employee,
+                payroll_period=payroll_period,
+                data_generated=date.today(),
+                total=total_salary,
+                status_payroll="Pendiente"
+            )
+            payroll.save()
 
-        return Response({'message': 'Planilla generada correctamente'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Planilla generada correctamente'}, status=status.HTTP_200_OK) 
+        
+
     
     @action(detail=False, methods=['post'])
     def generate_payroll_bono14(self, request):
@@ -87,72 +124,26 @@ class PayrollViewSet(viewsets.ModelViewSet):
 
         return Response({'message': 'Planilla generada correctamente'}, status=status.HTTP_200_OK)
 
-    # @action(detail=False, methods=['post'])
-    # def generate_payroll(self, request):
-    #     payroll_period = request.data.get('payroll_period')
-    #     try:
-    #         payroll_period = PayrollPeriod.objects.get(pk=payroll_period)
-    #     except PayrollPeriod.DoesNotExist:
-    #         return Response({'message': 'Periodo de planilla no existe'}, status=status.HTTP_400_BAD_REQUEST)
-        
-    #     employees = Employee.objects.filter(is_active=True)
-    #     for employee in employees:
-    #         total_salary = employee.calculte_total_salary()
-    #         payroll = Payroll.objects.create(
-    #             employee=employee,
-    #             payroll_period=payroll_period,
-    #             data_generated=date.today(),
-    #             total=total_salary,
-    #             status_payroll="Pendiente"
-    #         )
-    #         payroll.save()
-
-    #     return Response({'message': 'Planilla generada correctamente'}, status=status.HTTP_200_OK)
     
-    # @action(detail=False, methods=['post'])
-    # def pay_payroll(self, request):
-    #     payroll = request.data.get('payroll')
-    #     try:
-    #         payroll = Payroll.objects.get(pk=payroll)
-    #     except Payroll.DoesNotExist:
-    #         return Response({'message': 'Planilla no existe'}, status=status.HTTP_400_BAD_REQUEST)
-        
-    #     payroll.status_payroll = "Pagada"
-    #     payroll.save()
 
-    #     return Response({'message': 'Planilla pagada correctamente'}, status=status.HTTP_200_OK)
-    
-    # @action(detail=False, methods=['post'])
-    # def get_payroll_by_employee(self, request):
-    #     employee = request.data.get('employee')
-    #     try:
-    #         employee = Employee.objects.get(pk=employee)
-    #     except Employee.DoesNotExist:
-    #         return Response({'message': 'Empleado no existe'}, status=status.HTTP_400_BAD_REQUEST)
-        
-    #     payrolls = Payroll.objects.filter(employee=employee)
-    #     serializer = PayrollSerializer(payrolls, many=True)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    # @action(detail=False, methods=['post'])
-    # def get_payroll_by_payroll_period(self, request):
-    #     payroll_period = request.data.get('payroll_period')
-    #     try:
-    #         payroll_period = PayrollPeriod.objects.get(pk=payroll_period)
-    #     except PayrollPeriod.DoesNotExist:
-    #         return Response({'message': 'Periodo de planilla no existe'}, status=status.HTTP_400_BAD_REQUEST)
-        
-    #     payrolls = Payroll.objects.filter(payroll_period=payroll_period)
-    #     serializer = PayrollSerializer(payrolls, many=True)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
+class PayrollDeductionViewSet(viewsets.ModelViewSet):
+    queryset = PayrollDeduction.objects.all()
+    serializer_class = PayrollDeductionSerializer
 
+class PayrollIncomeViewSet(viewsets.ModelViewSet):
+    queryset = PayrollIncome.objects.all()
+    serializer_class = PayrollIncomeSerializer
 
-class DeductionViewSet(viewsets.ModelViewSet):
-    queryset = Deduction.objects.all()
-    serializer_class = DeductionSerializer
+class PayrollAccountingTransactionViewSet(viewsets.ModelViewSet):
+    queryset = PayrollAccountingTransaction.objects.all()
+    serializer_class = PayrollAccountingTransactionSerializer
 
-class IncomeViewSet(viewsets.ModelViewSet):
-    queryset = Income.objects.all()
-    serializer_class = IncomeSerializer
+class PayrollConceptViewSet(viewsets.ModelViewSet):
+    queryset = PayrollConcept.objects.filter(is_active=True)
+    serializer_class = PayrollConceptSerializer
 
-
+    @action(detail=False, methods=['get'])
+    def get_payroll_concepts_by_company(self, request):
+        payroll_concepts = PayrollConcept.objects.filter(is_active=True, company=request.query_params.get('company'))
+        serializer = PayrollConceptSerializer(payroll_concepts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

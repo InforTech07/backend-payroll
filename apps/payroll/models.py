@@ -4,20 +4,10 @@ from django.db import models
 from apps.company.models import Company
 
 # Create your models here.
-from apps.employee.models import Employee, Department
+from apps.employee.models import Employee
 
-class PayrollBase(models.Model):
-    """
-    PayrollBase model.
-    """
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        abstract = True
-
-class PayrollPeriod(PayrollBase):
+class PayrollPeriod(models.Model):
     """
     PayrollPeriod model.
     """
@@ -32,74 +22,92 @@ class PayrollPeriod(PayrollBase):
     )
     type = models.CharField(max_length=255, choices=TYPE_PAYROLL)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='payroll_period_company')
-
-    def __str__(self):
-        return self.name
-
-class PayrollConcept(PayrollBase):
-    """
-    PayrollConcept model.
-    """
-    name = models.CharField(max_length=255) # sueldo, horas extras, bono14...
-    TYPES_CONCEPT = (
-        ('INGRESOS', 'Ingreso'),
-        ('DEDUCCION', 'Deduccion'),
-        ('TRANSACCION_CONTABLE', 'Transaccion_contable'),
-    )
-    type = models.CharField(max_length=255, choices=TYPES_CONCEPT) # ingreso, deduccion
-    description = models.TextField()
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='payroll_concept_company')
+    is_open = models.BooleanField(default=True, blank=True, null=True)
 
     def __str__(self):
         return self.name
 
 
 
-class Payroll(PayrollBase):
+class Payroll(models.Model):
     """
     Payroll model.
     """
-
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='payroll_employee')
-    PayrollPeriod = models.ForeignKey(PayrollPeriod, on_delete=models.CASCADE, related_name='payroll_payroll_period')
-    data_generated = models.DateField() # fecha de generacion de la planilla
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='payroll_company')
+    payroll_period = models.ForeignKey(PayrollPeriod, on_delete=models.CASCADE, related_name='payroll_payroll_period')
+    date_generated = models.DateField(auto_now_add=True) # fecha de generacion de la planilla
     total = models.DecimalField(max_digits=10, decimal_places=2)
-    status_payroll = models.BooleanField(default=False) # estado de la planilla, si ya fue pagada o no
+    is_open = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
 
     def __str__(self):
         return self.name
 
 
-class Deduction(PayrollBase):
+class PayrollDeduction(models.Model):
     """
     Deduction model.
     """
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='deduction_employee')
-    concept = models.ForeignKey(PayrollConcept, on_delete=models.CASCADE, related_name='deduction_concept')
+    TYPES_CONCEPTS = (
+        ('INGRESO', 'Ingreso'),
+        ('DEDUCCION', 'Deduccion'),
+        ('TRANSACCION_CONTABLE', 'Transaccion_contable'),
+    )
+    type_concept = models.CharField(max_length=255, choices=TYPES_CONCEPTS)
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    reason = models.CharField(max_length=255)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField()
+    payroll_period = models.ForeignKey(PayrollPeriod, on_delete=models.CASCADE, related_name='deduction_payroll_period')
 
     def __str__(self):
-        return self.name
+        return self.type_concept
 
 
-
-
-class Income(PayrollBase):
+class PayrollIncome(models.Model):
     """
     Income model.
     """
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='income_employee')
-    concept = models.ForeignKey(PayrollConcept, on_delete=models.CASCADE, related_name='income_concept')
+    TYPES_CONCEPT = (
+        ('INGRESO', 'Ingreso'),
+        ('DEDUCCION', 'Deduccion'),
+        ('TRANSACCION_CONTABLE', 'Transaccion_contable'),
+    )
+    type_concept = models.CharField(max_length=255, choices=TYPES_CONCEPT)
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    reason = models.CharField(max_length=255)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateField()
+    payroll_period = models.ForeignKey(PayrollPeriod, on_delete=models.CASCADE, related_name='income_payroll_period')
     def __str__(self):
-        return self.name
+        return self.type_concept
+
+
+class PayrollAccountingTransaction(models.Model):
+    """
+    PayrollAccountingTransaction model.
+    """
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='accounting_transaction_employee')
+    TYPES_CONCEPT = (
+        ('INGRESO', 'Ingreso'),
+        ('DEDUCCION', 'Deduccion'),
+        ('TRANSACCION_CONTABLE', 'Transaccion_contable'),
+    )
+    type_concept = models.CharField(max_length=255, choices=TYPES_CONCEPT)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    reason = models.CharField(max_length=255)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateField()
+    payroll_period = models.ForeignKey(PayrollPeriod, on_delete=models.CASCADE, related_name='accounting_transaction_payroll_period')
+    def __str__(self):
+        return self.type_concept
 
 class TransferBank(models.Model):
     """
@@ -114,8 +122,55 @@ class TransferBank(models.Model):
         ('BANTRAB', 'Bantrab'),
     )
     bank = models.CharField(max_length=200, choices=BANKS)
+    account_number = models.CharField(max_length=255)
     reason = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    payroll_period = models.ForeignKey(PayrollPeriod, on_delete=models.CASCADE, related_name='transfer_bank_payroll_period')
+    def __str__(self):
+        return self.reason
+
+
+class TransferCash(models.Model):
+    """
+    Model for a transfer cash. TRANSFERENCIAS EFECTIVO
+    """
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='transfer_cash_employee')
+    date = models.DateField()
+    reason = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    payroll_period = models.ForeignKey(PayrollPeriod, on_delete=models.CASCADE, related_name='transfer_cash_payroll_period')
+
+    def __str__(self):
+        return self.reason
+
+
+class PayrollConcept(models.Model):
+    """
+    Model for concepts payroll. CONCEPTOS PLANILLA
+    """
+    CONCEPT=(
+        ('OVERTIME', 'Horas Extras'),
+        ('SALES_COMMISSION', 'Comisiones de Venta'),
+        ('PRODUCTION_BONUS', 'Bonos de Produccion'),
+        ('SOLIDARITY_CONTRIBUTION', 'Aportes Solidarios'),
+        ('LOANS', 'Prestamos'),
+    )
+    concept = models.CharField(max_length=255, choices=CONCEPT)
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='payroll_concept_employee')
+    payroll_period = models.ForeignKey(PayrollPeriod, on_delete=models.CASCADE, related_name='payroll_concept_payroll_period')
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='payroll_concept_company')
+    date = models.DateField(auto_now_add=True)
+    reason = models.CharField(max_length=255)
+    overtime_minutes = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True, null=True)
+    public_holiday = models.BooleanField(default=False, blank=True, null=True)
+    sales = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True, null=True)
+    production = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True, null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, blank=True, null=True)
+    is_cancelled = models.BooleanField(default=False, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

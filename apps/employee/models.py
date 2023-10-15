@@ -5,45 +5,39 @@ from django.db import models
 from apps.user.models import User
 from apps.company.models import Company
 from datetime import date, timedelta
+from django.utils import timezone
+from django.db.models import Sum
 
-class EmployeeBase(models.Model):
-    """
-    EmployeeBase model.
-    """
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        abstract = True
-
-class Department(EmployeeBase):
+class Department(models.Model):
     """
     Department model.
     """
     name = models.CharField(max_length=255)
     description = models.TextField()
-    #head_department = models.ForeignKey('Employee', on_delete=models.SET_NULL, blank=True, null=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='department_company')
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.name
+        return self.name + '-' + self.company.name
 
 
 
-class JobPosition(EmployeeBase):
+class JobPosition(models.Model):
     """
     JobPosition model.
     """
     name = models.CharField(max_length=255)
     description = models.TextField()
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='job_position_company')
+    is_active = models.BooleanField(default=True)
+
     def __str__(self):
-        return self.name
+        return self.name + '-' + self.company.name
 
 
 
-class Employee(EmployeeBase):
+class Employee(models.Model):
     """
     Model for an employee.
     """
@@ -56,7 +50,11 @@ class Employee(EmployeeBase):
     date_hiring = models.DateField()
     date_completion = models.DateField(blank=True, null=True)
     birth_date = models.DateField()
-    gender = models.CharField(max_length=10)
+    GENDERS = (
+        ('MASCULINO', 'Masculino'),
+        ('FEMENINO', 'Femenino'),
+    )
+    gender = models.CharField(max_length=10, choices=GENDERS)
     base_salary = models.DecimalField(max_digits=10, decimal_places=2)
     base_salary_initial = models.DecimalField(max_digits=10, decimal_places=2)
     head_department = models.BooleanField(default=False)
@@ -66,22 +64,41 @@ class Employee(EmployeeBase):
         ('TRANSFERENCIA', 'Transferencia'),
     )
     method_payment = models.CharField(max_length=255, choices=METHOD_PAYMENTS)
+    BANKS = (
+        ('BANRURAL', 'Banrural'),
+        ('BANCO_INDUSTRIAL', 'Banco Industrial'),
+        ('BANCO_GYT', 'Banco G&T'),
+        ('BANTRAB', 'Bantrab'),
+    )
+    bank = models.CharField(max_length=255, blank=True, null=True, choices=BANKS)
+    account_number = models.CharField(max_length=255, blank=True, null=True)
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='employee_department')
     job_position = models.ForeignKey(JobPosition, on_delete=models.CASCADE, related_name='employee_job_position')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='employee_user', blank=True, null=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='employee_company')
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.first_name
+        return self.first_name + ' ' + self.last_name 
     
-    def calculte_total_salary(self):
+    def calculte_payroll_monthly(self,payroll_period):
         """
-        Calculate total salary.
+        calculte salary.
         """
-        income_employee = sum([income.amount for income in self.income_employee.filter(is_active=True)])
-        deduction_employee = sum([deduction.amount for deduction in self.deduction_employee.filter(is_active=True)])
-        total_salary = self.base_salary + income_employee - deduction_employee
-        return total_salary
+        social_insurance_employee = float(self.base_salary) * 0.0483
+        social_insurance_company = float(self.base_salary) * 0.1067
+        total_income = sum([income.total for income in self.income_employee.filter(payroll_period=payroll_period)])
+        total_deduction = sum([deduction.total for deduction in self.deduction_employee.filter(payroll_period=payroll_period)])
+        total_salary = float(self.base_salary) + float(total_income) - float(total_deduction) - float(social_insurance_employee)
+        data = {
+            'salary': self.base_salary,
+            'total_income': total_income,
+            'total_deduction': total_deduction,
+            'social_insurance_employee': social_insurance_employee,
+            'social_insurance_company': social_insurance_company,
+            'total_salary': total_salary
+        }
+        return data
 
 
     def calculte_bono14(self):
@@ -120,14 +137,23 @@ class Employee(EmployeeBase):
             return severance_pay
         else:
             return 0
+    
+    def check_credit_available(self):
+        if self.credit_available > 0:
+            return True
+        else:
+            return False
+    def get_employee_by_user(self, user):
+        return Employee.objects.get(user=user)
         
-class EmployeeDocument(EmployeeBase):
+class EmployeeDocument(models.Model):
     """
     Model for an employee document.
     """
     name = models.CharField(max_length=255)
     file = models.CharField(max_length=255)
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='employee_document_employee')
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -178,81 +204,11 @@ class RequestAbsence(models.Model):
         ('RECHAZADO', 'Rechazado'),
     )
     status = models.CharField(max_length=255, choices=REQUEST_STATUS, default='PENDIENTE')
+    
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.reason
 
-class Overtime(models.Model):
-    """
-    Model for an overtime. HORAS EXTRAS
-    """
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='overtime_employee')
-    date = models.DateField()
-    reason = models.CharField(max_length=255)
-    overtime_hours = models.DecimalField(max_digits=10, decimal_places=2)
-    public_holiday = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.reason
-
-class SalesCommission(models.Model):
-    """
-    Model for a sales commission. COMISIONES DE VENTA
-    """
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='sales_commission_employee')
-    date = models.DateField(auto_now_add=True)
-    sales = models.DecimalField(max_digits=10, decimal_places=2)
-    commission = models.DecimalField(max_digits=10, decimal_places=2)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.reason
-
-class ProductionBonus(models.Model):
-    """
-    Model for a production bonus. BONOS DE PRODUCCION
-    """
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='production_bonus_employee')
-    date = models.DateField(auto_now_add=True)
-    production = models.DecimalField(max_digits=10, decimal_places=2)
-    bonus = models.DecimalField(max_digits=10, decimal_places=2)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.reason
-
-
-class SolidarityContribution(models.Model):
-    """
-    Model for a solidarity contribution. APORTES SOLIDARIOS
-    """
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='solidarity_contribution_employee')
-    date = models.DateField()
-    reason = models.CharField(max_length=255)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.reason
-
-class Loans(models.Model):
-    """
-    Model for a loan. PRESTAMOS
-    """
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='loan_employee')
-    date = models.DateField()
-    reason = models.CharField(max_length=255)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.reason
 

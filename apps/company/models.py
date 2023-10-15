@@ -13,7 +13,6 @@ class Company(models.Model):
     description = models.TextField()
     address = models.CharField(max_length=255)
     picture = models.CharField(max_length=200, blank=True, null=True)
-    #user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
   
