@@ -14,6 +14,7 @@ from apps.employee.models import (Department,
                                   FamilyMember, 
                                   SalaryIncrease, 
                                   EmployeeDocument,
+                                  RequestAbsence,
                                   )
 
 
@@ -191,3 +192,11 @@ class EmployeeDocumentSerializer(serializers.ModelSerializer):
             'file',
             'employee',
         )
+
+class RequestAbsenceSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the request absence model.
+    """
+    class Meta:
+        model = RequestAbsence
+        fields = '__all__'

@@ -11,6 +11,7 @@ from apps.employee.views import (
                         FamilyMemberViewSet, 
                         SalaryIncreaseViewSet, 
                         EmployeeDocumentViewSet,
+                        RequestAbsenceViewSet
                         )
 
 # department_by_company = DepartmentViewSet.as_view({
@@ -26,6 +27,7 @@ router.register(r'employee', EmployeeViewSet, basename='employee')
 router.register(r'employee_document', EmployeeDocumentViewSet, basename='employee_document')
 router.register(r'family_member', FamilyMemberViewSet, basename='family_member')
 router.register(r'salary_increase', SalaryIncreaseViewSet, basename='salary_increase')
+router.register(r'request_absence', RequestAbsenceViewSet, basename='request_absence')
 
 urlpatterns = [
     path('', include(router.urls)),

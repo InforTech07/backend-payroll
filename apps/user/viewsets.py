@@ -22,6 +22,7 @@ from apps.user.serializers import UserModelSerializer, UserLoginSerializer
 
 # models
 from apps.user.models import User
+from apps.employee.models import Employee
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -48,7 +49,8 @@ class UserLoginViewSet(viewsets.ModelViewSet):
         data_user.pop('password')
         data = {
             'user': data_user,
-            'acces_token': token
+            'acces_token': token,
+            'employee_id': Employee.objects.filter(user=user).first().id
         }
         #return Response(data, status=status.HTTP_200_OK)
 
@@ -57,6 +59,7 @@ class UserLoginViewSet(viewsets.ModelViewSet):
         # serializer.is_valid(raise_exception=True)
         # user = serializer.save()
         # data = self.get_serializer(user).data
+        print(data)
         return Response(data, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get'])

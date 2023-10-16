@@ -32,6 +32,8 @@ class UserModelSerializer(serializers.ModelSerializer):
     # company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all(), required=False)
     ##obtener el objeto de la compañia
     #company = CompanySerializer(read_only=True)
+    #employee = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True, default=None, read_only=True)
+    #password = serializers.CharField(min_length=8, max_length=128, write_only=True)
     company = CompanySerializer(read_only=True)
     class Meta:
         """Meta class."""
@@ -76,7 +78,6 @@ class UserLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError('Incorrect email or password')
         if user.is_default_password:
             raise serializers.ValidationError('User is in reset password')
-        print(user)
         self.context['user'] = user
         return data
 
