@@ -30,14 +30,12 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserModelSerializer
     lookup_field = 'username'
 
-    #login
-    
+
+
 class UserLoginViewSet(viewsets.ModelViewSet):
     queryset = User.objects.filter(is_active=True)
     serializer_class = UserLoginSerializer
     lookup_field = 'username'
-
-    #login
 
     def create(self, request, *args, **kwargs):
         """Create user."""
@@ -47,19 +45,19 @@ class UserLoginViewSet(viewsets.ModelViewSet):
         user, token = serializer.save()
         data_user = UserModelSerializer(user).data
         data_user.pop('password')
+        employee_id = 0
+        try:
+            employee = Employee.objects.filter(user=user).first().id
+            if employee:
+                employee_id = employee
+        except:
+            pass
+        
         data = {
             'user': data_user,
             'acces_token': token,
-            'employee_id': Employee.objects.filter(user=user).first().id
+            'employee_id': employee_id
         }
-        #return Response(data, status=status.HTTP_200_OK)
-
-
-        # serializer = UserModelSerializer(data=request.data)
-        # serializer.is_valid(raise_exception=True)
-        # user = serializer.save()
-        # data = self.get_serializer(user).data
-        print(data)
         return Response(data, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get'])
@@ -292,3 +290,6 @@ class ResetPasswordViewSet(viewsets.ModelViewSet):
             return Response(data, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'User not verified'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+    

@@ -197,6 +197,16 @@ class RequestAbsenceSerializer(serializers.ModelSerializer):
     """
     Serializer for the request absence model.
     """
+    employee_name = serializers.CharField(source='employee.get_full_name', read_only=True)
     class Meta:
         model = RequestAbsence
-        fields = '__all__'
+        fields = (
+            'id',
+            'employee',
+            'start_date',
+            'end_date',
+            'reason',
+            'status',
+            'employee_name',
+        )
+    

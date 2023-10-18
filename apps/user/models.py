@@ -27,7 +27,12 @@ class User(AbstractUser):
     )
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
-    role = models.CharField(max_length=255, default='user')
+    ROLE=(
+        ('superadmin', 'Superadmin'),
+        ('admin', 'Admin'),
+        ('user', 'User'),
+    )
+    role = models.CharField(max_length=255, choices=ROLE, default='user')
     picture = models.CharField(max_length=200, blank=True, null=True)
     password = models.CharField(max_length=200, blank=True, null=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='user', blank=True, null=True)

@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 # models
 from apps.employee.models import (
                             Department, 
@@ -10,6 +8,7 @@ from apps.employee.models import (
                             EmployeeDocument,
                             RequestAbsence
                             )
+
 
 # serializers
 from apps.employee.serializers import (
@@ -40,6 +39,11 @@ class DepartmentViewSet(viewsets.ModelViewSet):
         departments = Department.objects.filter(is_active=True, company=request.query_params.get('company'))
         serializer = DepartmentSerializer(departments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'])
+    def get_count_departments_by_company(self, request):
+        departments = Department.objects.filter(is_active=True, company=request.query_params.get('company')).count()
+        return Response({'count': departments}, status=status.HTTP_200_OK)
 
 
     def destroy(self, request, *args, **kwargs):
@@ -58,6 +62,11 @@ class JobPositionViewSet(viewsets.ModelViewSet):
         serializer = JobPositionSerializer(job_positions, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+    @action(detail=False, methods=['get'])
+    def get_count_job_positions_by_company(self, request):
+        jobpositions = JobPosition.objects.filter(is_active=True, company=request.query_params.get('company')).count()
+        return Response({'count': jobpositions}, status=status.HTTP_200_OK)
+    
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         self.perform_destroy(instance)
@@ -66,6 +75,11 @@ class JobPositionViewSet(viewsets.ModelViewSet):
 class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.filter(is_active=True)
     serializer_class = EmployeeSerializer
+
+    @action(detail=False, methods=['get'])
+    def get_count_employees_by_company(self, request):
+        employees = Employee.objects.filter(is_active=True, company=request.query_params.get('company')).count()
+        return Response({'count': employees}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'])
     def get_employees(self, request):
@@ -127,6 +141,12 @@ class RequestAbsenceViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def get_requests(self, request):
         requests = RequestAbsence.objects.filter(is_active=True, employee=request.query_params.get('employee'))
+        serializer = RequestAbsenceSerializer(requests, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'])
+    def get_requests_absence_by_company(self, request):
+        requests = RequestAbsence.objects.filter(is_active=True, company=request.query_params.get('company'))
         serializer = RequestAbsenceSerializer(requests, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     

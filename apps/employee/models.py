@@ -81,6 +81,9 @@ class Employee(models.Model):
     def __str__(self):
         return self.first_name + ' ' + self.last_name 
     
+    def get_full_name(self):
+        return self.first_name + ' ' + self.last_name
+    
     def calculte_payroll_monthly(self,payroll_period):
         """
         calculte salary.
@@ -201,10 +204,11 @@ class RequestAbsence(models.Model):
     REQUEST_STATUS = (
         ('PENDIENTE', 'Pendiente'),
         ('APROBADO', 'Aprobado'),
+        ('APROBADO_SIN_DESCUENTO', 'Aprobado'),
         ('RECHAZADO', 'Rechazado'),
     )
     status = models.CharField(max_length=255, choices=REQUEST_STATUS, default='PENDIENTE')
-    
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='request_absence_company')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

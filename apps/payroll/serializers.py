@@ -49,9 +49,25 @@ class PayrollConceptSerializer(serializers.ModelSerializer):
     """
     Serializer for the payroll concept model.
     """
+    employee_name = serializers.CharField(source='employee.get_full_name', read_only=True)
     class Meta:
         model = PayrollConcept
-        fields = '__all__'
+        fields = (
+            'id',
+            'concept',
+            'employee',
+            'payroll_period',
+            'reason',
+            'date',
+            'overtime_minutes',
+            'public_holiday',
+            'sales',
+            'production',
+            'amount',
+            'company',
+            'is_cancelled',
+            'employee_name',
+        )
 
     def save(self, *args, **kwargs):
         """
