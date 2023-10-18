@@ -103,6 +103,23 @@ class Employee(models.Model):
         }
         return data
 
+    def calculte_biweekly_payroll(self,payroll_period):
+        """
+        calculte salary.
+        """
+        salary = float(self.base_salary) * 0.45
+        credit_store = sum([store.total for store in self.store_purchase_employee.filter(cancelled=False, employee=self)])
+        total_salary = float(salary) - float(credit_store)
+
+        data = {
+            'salary': salary,
+            'total_income': 0,
+            'total_deduction': credit_store,
+            'social_insurance_employee': 0,
+            'social_insurance_company': 0,
+            'total_salary': total_salary
+        }
+        return data
 
     def calculte_bono14(self):
         """
@@ -198,6 +215,7 @@ class RequestAbsence(models.Model):
     Model for a request absence. PERMISOS
     """
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='request_absence_employee')
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='request_absence_company')
     start_date = models.DateField()
     end_date = models.DateField()
     reason = models.CharField(max_length=255)
@@ -208,7 +226,6 @@ class RequestAbsence(models.Model):
         ('RECHAZADO', 'Rechazado'),
     )
     status = models.CharField(max_length=255, choices=REQUEST_STATUS, default='PENDIENTE')
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='request_absence_company')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

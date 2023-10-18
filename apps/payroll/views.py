@@ -57,6 +57,25 @@ class PayrollViewSet(viewsets.ModelViewSet):
             payroll_period_instance = PayrollPeriod.objects.get(id=payroll_period_id)
             if payroll_period_instance is None:
                 return Response({'message': 'Periodo de planilla no existe'}, status=status.HTTP_400_BAD_REQUEST)
+            type_period = payroll_period_instance.type
+            if type_period == 'QUINCENAL':
+                employees = Employee.objects.filter(is_active=True, company=company_id)
+                payroll_prev = []
+                for employee in employees:
+                    result = employee.calculte_biweekly_payroll(payroll_period_instance)
+                    payroll = Payroll()
+                    payroll.employee_name = employee.first_name + ' ' + employee.last_name
+                    payroll.employee = employee
+                    payroll.total = result['total_salary']
+                    payroll.incomes = result['total_income']
+                    payroll.deductions = result['total_deduction']
+                    payroll.salary_base = employee.base_salary
+                    payroll.social_insurance_employee = result['social_insurance_employee']
+                    payroll.social_insurance_company = result['social_insurance_company']
+                    payroll.payroll_period = payroll_period_instance
+                    payroll_prev.append(payroll)
+                serializer = PayrollSerializer(payroll_prev, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 employees = Employee.objects.filter(is_active=True, company=company_id)
                 payroll_prev = []
@@ -123,6 +142,33 @@ class PayrollViewSet(viewsets.ModelViewSet):
             payroll.save()
 
         return Response({'message': 'Planilla generada correctamente'}, status=status.HTTP_200_OK)
+    
+    #@action(detail=False, methods=['get'])
+    # def get_biweekly_payroll(self, request):
+    #     payroll_period = request.query_params.get('payroll_period')
+    #     company_id = request.query_params.get('company')
+    #     try:
+    #         payroll_period_instance = PayrollPeriod.objects.get(pk=payroll_period)
+    #         employees = Employee.objects.filter(is_active=True)
+    #         payroll_prev = []
+    #         for employee in employees:
+    #             result = employee.calculte_biweekly_payroll(payroll_period)
+    #             payroll = Payroll()
+    #             payroll.employee_name = employee.first_name + ' ' + employee.last_name
+    #             payroll.employee = employee
+    #             payroll.total = result['total_salary']
+    #             payroll.incomes = result['total_income']
+    #             payroll.deductions = result['total_deduction']
+    #             payroll.salary_base = employee.base_salary
+    #             payroll.social_insurance_employee = result['social_insurance_employee']
+    #             payroll.social_insurance_company = result['social_insurance_company']
+    #             payroll.payroll_period = payroll_period_instance
+    #             payroll_prev.append(payroll)
+    #         serializer = PayrollSerializer(payroll_prev, many=True)
+    #         return Response(serializer.data, status=status.HTTP_200_OK)
+    #     except PayrollPeriod.DoesNotExist:
+    #         return Response({'message': 'Periodo de planilla no existe'}, status=status.HTTP_400_BAD_REQUEST)
+        
 
     
 

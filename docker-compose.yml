@@ -1,22 +1,33 @@
 version: "3.9"
    
 services:
-#  db:
-#    image: postgres:13
-#    volumes:
-#      - ./data/db:/var/lib/postgresql/data
-#    ports:
-#      - 5432:5432
-#    environment:
-#     - "POSTGRES_HOST_AUTH_METHOD=trust"
-#    restart: always
-#  pgadmin:
-#    image: dpage/pgadmin4
-#    ports:
-#      - 5050:80
-#    environment:
-#      - PGADMIN_DEFAULT_EMAIL=admin@sicombue.com
-#      - PGADMIN_DEFAULT_PASSWORD=Sicombue1.
+  # nginx-proxy:
+  #   image: jwilder/nginx-proxy
+  #   restart: always
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - /var/run/docker.sock:/tmp/docker.sock:ro
+  #     - certs:/etc/nginx/certs:ro
+  #     - vhostd:/etc/nginx/vhost.d
+  #     - html:/usr/share/nginx/html
+  #     - acme:/etc/acme.sh
+  #   labels:
+  #     - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+  
+  # letsencrypt:
+  #   image: jrcs/letsencrypt-nginx-proxy-companion
+  #   restart: always
+  #   environment:
+  #     - NGINX_PROXY_CONTAINER=nginx-proxy
+  #   volumes:
+  #     - certs:/etc/nginx/certs:rw
+  #     - vhostd:/etc/nginx/vhost.d
+  #     - html:/usr/share/nginx/html
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - acme:/etc/acme.sh
+
   api:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -24,9 +35,27 @@ services:
       - .:/code
     ports:
       - "8000:8000"
+    expose:
+      - "8000"
+    # environment:
+    #   #- VIRTUAL_HOST=pablokbs.com,www.pablokbs.com
+    #   - LETSENCRYPT_HOST=pablokbs.com,www.pablokbs.com
+    #   - LETSENCRYPT_EMAIL=pablo@pablokbs.com
+    # depends_on:
+    #   - nginx-proxy
+    #   - letsencrypt
+    # restart: always
+      # - VIRTUAL_HOST=api.payroll.com
  #   environment:
  #     - POSTGRES_NAME=postgres
  #     - POSTGRES_USER=postgres
  #     - POSTGRES_PASSWORD=postgres
 #    depends_on:
 #      - db
+
+
+# volumes: 
+#   certs:
+#   html:
+#   vhostd:
+#   acme:

@@ -203,6 +203,7 @@ class RequestAbsenceSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'employee',
+            'company',
             'start_date',
             'end_date',
             'reason',

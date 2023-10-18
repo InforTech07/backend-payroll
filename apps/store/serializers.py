@@ -10,7 +10,6 @@ class StorePurchaseSerializer(serializers.ModelSerializer):
     """
     date = serializers.DateField(read_only=True)
     company = serializers.IntegerField(read_only=True)
-    base_salary = serializers.IntegerField(write_only=True)
     class Meta:
         model = StorePurchase
         fields = '__all__'
@@ -21,7 +20,7 @@ class StorePurchaseSerializer(serializers.ModelSerializer):
         Save a store purchase.
         """
         date_now = date.today()
-        base_salary = self.validated_data['base_salary']
+        base_salary = Employee.objects.get(id=self.validated_data['employee'].id).base_salary
         amount_credit = StorePurchase.objects.filter(cancelled=False, employee=self.validated_data['employee']).aggregate(Sum('total'))
         salary_available = 0
         if amount_credit['total__sum'] is None:
@@ -29,14 +28,14 @@ class StorePurchaseSerializer(serializers.ModelSerializer):
         else:
             salary_available = int(base_salary / 2 ) - amount_credit['total__sum']
 
-
         if salary_available > self.validated_data['total']:
-            if date_now.day <= 15:
+            if date_now.day <= 18:
                 store_purchase = StorePurchase.objects.create(
                     date=date_now,
                     total=self.validated_data['total'],
                     employee=self.validated_data['employee']
                 )
+                store_purchase.save()
                 return store_purchase
             else:
                 print('procede credito mayor a 15')
