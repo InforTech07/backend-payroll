@@ -48,9 +48,41 @@ class PayrollViewSet(viewsets.ModelViewSet):
         payrolls = Payroll.objects.filter(company=request.query_params.get('company'))
         serializer = PayrollSerializer(payrolls, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
     @action(detail=False, methods=['get'])
     def generate_prev_payroll(self, request):
+        payroll_period_id = request.query_params.get('payroll_period')
+        company_id = request.query_params.get('company')
+        try:
+            payroll_period_instance = PayrollPeriod.objects.get(id=payroll_period_id)
+            if payroll_period_instance is None:
+                return Response({'message': 'Periodo de planilla no existe'}, status=status.HTTP_400_BAD_REQUEST)
+            employees = Employee.objects.filter(is_active=True, company=company_id)
+            payroll_prev = []
+            for employee in employees:
+                result = employee.get_calculate_payroll(payroll_period_instance)
+                payroll = Payroll()
+                payroll.employee_name = employee.first_name + ' ' + employee.last_name
+                payroll.employee = employee
+                payroll.gross_salary = result['gross_salary']
+                payroll.net_salary = result['net_salary']
+                payroll.incomes = result['total_income']
+                payroll.deductions = result['total_deduction']
+                payroll.social_insurance_employee = result['social_insurance_employee']
+                payroll.social_insurance_company = result['social_insurance_company']
+                payroll.gross_biweekly_salary = result['gross_biweekly_salary']
+                payroll.net_biweekly_salary = result['net_biweekly_salary']
+                payroll.total_biweekly_deduction = result['total_biweekly_deduction']
+                payroll.salary_base = employee.base_salary
+                payroll.payroll_period = payroll_period_instance
+                payroll_prev.append(payroll)
+                
+            serializer = PayrollSerializer(payroll_prev, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except PayrollPeriod.DoesNotExist:
+            return Response({'message': 'Periodo de planilla no existe'}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'])
+    def generate_prev_payrolll(self, request):
         payroll_period_id = request.query_params.get('payroll_period')
         company_id = request.query_params.get('company')
         try:
@@ -80,16 +112,21 @@ class PayrollViewSet(viewsets.ModelViewSet):
                 employees = Employee.objects.filter(is_active=True, company=company_id)
                 payroll_prev = []
                 for employee in employees:
-                    result = employee.calculte_payroll_monthly(payroll_period_instance)
+                    result = employee.get_calculate_payroll(payroll_period_instance)
+                    print(result)
                     payroll = Payroll()
                     payroll.employee_name = employee.first_name + ' ' + employee.last_name
                     payroll.employee = employee
-                    payroll.total = result['total_salary']
+                    payroll.gross_salary = result['gross_salary']
+                    payroll.net_salary = result['net_salary']
                     payroll.incomes = result['total_income']
                     payroll.deductions = result['total_deduction']
-                    payroll.salary_base = employee.base_salary
                     payroll.social_insurance_employee = result['social_insurance_employee']
                     payroll.social_insurance_company = result['social_insurance_company']
+                    payroll.gross_biweekly_salary = result['gross_biweekly_salary']
+                    payroll.net_biweekly_salary = result['net_biweekly_salary']
+                    payroll.total_biweekly_deduction = result['total_biweekly_deduction']
+                    payroll.salary_base = employee.base_salary
                     payroll.payroll_period = payroll_period_instance
                     payroll_prev.append(payroll)
                 serializer = PayrollSerializer(payroll_prev, many=True)

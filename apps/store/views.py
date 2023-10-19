@@ -19,8 +19,8 @@ class StorePurchaseViewSet(viewsets.ModelViewSet):
         """
         Get all store purchases.
         """
-        store_purchases = StorePurchase.objects.all()
-        serializer = StorePurchaseSerializer(store_purchases, many=True)
+        sales = StorePurchase.objects.filter(company=request.query_params['company'])
+        serializer = StorePurchaseSerializer(sales, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # @action(detail=False, methods=['post'])

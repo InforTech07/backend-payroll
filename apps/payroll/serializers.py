@@ -19,11 +19,16 @@ class PayrollPeriodSerializer(serializers.ModelSerializer):
 
 
 class PayrollSerializer(serializers.ModelSerializer):
+    gross_salary = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    net_salary = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     incomes = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     deductions = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     salary_base = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     social_insurance_employee = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     social_insurance_company = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    gross_biweekly_salary = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    net_biweekly_salary = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    total_biweekly_deduction = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     employee_name = serializers.CharField(read_only=True)
     class Meta:
         model = Payroll
