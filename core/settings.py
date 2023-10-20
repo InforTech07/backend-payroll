@@ -54,7 +54,6 @@ THIRD_PARTY_APPS=[
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
-    'whitenoise',
 ]
 
 INSTALLED_APPS= DJANGO_APPS + PROJECT_APPS  + THIRD_PARTY_APPS
