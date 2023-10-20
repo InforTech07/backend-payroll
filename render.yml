@@ -1,0 +1,5 @@
+services:
+  - type: web
+    name: webapp
+    env: python
+    startCommand: "sh ./code/release.sh"
