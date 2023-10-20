@@ -34,9 +34,9 @@ services:
     volumes:
       - .:/code
     ports:
-      - "8000:8000"
-    expose:
-      - "8000"
+      - "80:8000"
+    # expose:
+    #   - "8000"
     # environment:
     #   #- VIRTUAL_HOST=pablokbs.com,www.pablokbs.com
     #   - LETSENCRYPT_HOST=pablokbs.com,www.pablokbs.com

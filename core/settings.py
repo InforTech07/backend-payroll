@@ -94,17 +94,29 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+#postgres
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+		'ENGINE': 'django.db.backends.postgresql_psycopg2',
+		'NAME' : 'neondb',
+		'USER' : 'InforTech07',
+		'PASSWORD' : 'vogNu23qOhdK',
+		'HOST' : 'ep-square-snow-67721858.us-west-2.aws.neon.tech', # localhost en caso de tenerlo en local y la URL de la base de datos en caso de tenerlo en algún servicio en la nube
+		'PORT' : '5432' # Si usas el puerto default no pongas esta línea y si lo has cambiado especifícaselo aquí
+	}
 }
+#DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
 # DATABASES = {
 #     "default": env.db("DATABASE_URL", default="postgres:///ninerogues"),
 # }
-# DATABASES["default"]["ATOMIC_REQUESTS"] = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
