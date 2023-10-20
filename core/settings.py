@@ -119,11 +119,13 @@ DATABASES = {
 #     "default": env.db("DATABASE_URL", default="postgres:///ninerogues"),
 # }
 CORS_ALLOWED_ORIGINS = [
+    'https://umg-payroll-platform.vercel.app/',
     'https://main.d34sc4zffkrzrb.amplifyapp.com/',
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
 CORS_ORIGIN_WHITELIST = [
+    'https://umg-payroll-platform.vercel.app/',
     'https://main.d34sc4zffkrzrb.amplifyapp.com/',
     'http://localhost:3000',
     'http://localhost:8000',
@@ -132,6 +134,7 @@ CORS_ORIGIN_WHITELIST = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
+    'https://umg-payroll-platform.vercel.app/',
     'https://main.d34sc4zffkrzrb.amplifyapp.com/'
     'http://localhost:3000',
     'http://localhost:8000',
