@@ -162,9 +162,11 @@ class Employee(models.Model):
 
         if credit_store_biweekly > 0:
             total_biweekly_deduction = float(total_biweekly_deduction) + float(credit_store_biweekly)
-
+        
+        
+        total_deduction = float(total_deduction) + (social_insurance_employee )
         gross_salary = float(self.base_salary) + float(total_income)
-        net_salary = float(gross_salary) - float(total_deduction) - float(social_insurance_employee)
+        net_salary = float(gross_salary) - float(total_deduction)
 
         gross_salary_biweekly = float(biweekly_salary) 
         net_salary_biweekly = float(biweekly_salary) - float(total_biweekly_deduction) 
