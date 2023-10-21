@@ -102,13 +102,23 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #     }
 # }
 #postgres
+# DATABASES = {
+#     'default': {
+# 		'ENGINE': 'django.db.backends.postgresql_psycopg2',
+# 		'NAME' : 'tconsultingsa-db',
+# 		'USER' : 'InforTech07',
+# 		'PASSWORD' : 'vogNu23qOhdK',
+# 		'HOST' : 'ep-square-snow-67721858.us-west-2.aws.neon.tech', # localhost en caso de tenerlo en local y la URL de la base de datos en caso de tenerlo en algún servicio en la nube
+# 		'PORT' : '5432' # Si usas el puerto default no pongas esta línea y si lo has cambiado especifícaselo aquí
+# 	}
+# }
 DATABASES = {
     'default': {
 		'ENGINE': 'django.db.backends.postgresql_psycopg2',
-		'NAME' : 'tconsultingsa-db',
-		'USER' : 'InforTech07',
-		'PASSWORD' : 'vogNu23qOhdK',
-		'HOST' : 'ep-square-snow-67721858.us-west-2.aws.neon.tech', # localhost en caso de tenerlo en local y la URL de la base de datos en caso de tenerlo en algún servicio en la nube
+		'NAME' : 'postgres',
+		'USER' : 'postgres',
+		'PASSWORD' : 'Payroll123db',
+		'HOST' : 'payroll-db.cb118c6vvezx.us-east-2.rds.amazonaws.com', # localhost en caso de tenerlo en local y la URL de la base de datos en caso de tenerlo en algún servicio en la nube
 		'PORT' : '5432' # Si usas el puerto default no pongas esta línea y si lo has cambiado especifícaselo aquí
 	}
 }
