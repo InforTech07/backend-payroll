@@ -74,6 +74,8 @@ class PayrollViewSet(viewsets.ModelViewSet):
                 payroll.total_biweekly_deduction = result['total_biweekly_deduction']
                 payroll.salary_base = employee.base_salary
                 payroll.payroll_period = payroll_period_instance
+                payroll.bono14 = result['bono14']
+                payroll.aguinaldo = result['aguinaldo']
                 payroll_prev.append(payroll)
                 
             serializer = PayrollSerializer(payroll_prev, many=True)

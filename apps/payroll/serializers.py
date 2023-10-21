@@ -30,6 +30,9 @@ class PayrollSerializer(serializers.ModelSerializer):
     net_biweekly_salary = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     total_biweekly_deduction = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     employee_name = serializers.CharField(read_only=True)
+    bono14 = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    aguinaldo = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    payroll_name = serializers.CharField(source='payroll_period.name', read_only=True)
     class Meta:
         model = Payroll
         fields = '__all__'

@@ -62,7 +62,7 @@ INSTALLED_APPS= DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    #'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -95,38 +95,38 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-#postgres
 DATABASES = {
     'default': {
-		'ENGINE': 'django.db.backends.postgresql_psycopg2',
-		'NAME' : 'neondb',
-		'USER' : 'InforTech07',
-		'PASSWORD' : 'vogNu23qOhdK',
-		'HOST' : 'ep-square-snow-67721858.us-west-2.aws.neon.tech', # localhost en caso de tenerlo en local y la URL de la base de datos en caso de tenerlo en algún servicio en la nube
-		'PORT' : '5432' # Si usas el puerto default no pongas esta línea y si lo has cambiado especifícaselo aquí
-	}
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
+
+#postgres
+# DATABASES = {
+#     'default': {
+# 		'ENGINE': 'django.db.backends.postgresql_psycopg2',
+# 		'NAME' : 'neondb',
+# 		'USER' : 'InforTech07',
+# 		'PASSWORD' : 'vogNu23qOhdK',
+# 		'HOST' : 'ep-square-snow-67721858.us-west-2.aws.neon.tech', # localhost en caso de tenerlo en local y la URL de la base de datos en caso de tenerlo en algún servicio en la nube
+# 		'PORT' : '5432' # Si usas el puerto default no pongas esta línea y si lo has cambiado especifícaselo aquí
+# 	}
+# }
 #DATABASES["default"]["ATOMIC_REQUESTS"] = True
 
 # DATABASES = {
 #     "default": env.db("DATABASE_URL", default="postgres:///ninerogues"),
 # }
 CORS_ALLOWED_ORIGINS = [
-    'https://umg-payroll-platform.vercel.app/',
-    'https://main.d34sc4zffkrzrb.amplifyapp.com/',
+    # 'https://umg-payroll-platform.vercel.app/',
+    # 'https://main.d34sc4zffkrzrb.amplifyapp.com/',
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
 CORS_ORIGIN_WHITELIST = [
-    'https://umg-payroll-platform.vercel.app/',
-    'https://main.d34sc4zffkrzrb.amplifyapp.com/',
+    # 'https://umg-payroll-platform.vercel.app/',
+    # 'https://main.d34sc4zffkrzrb.amplifyapp.com/',
     'http://localhost:3000',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
@@ -134,8 +134,8 @@ CORS_ORIGIN_WHITELIST = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://umg-payroll-platform.vercel.app/',
-    'https://main.d34sc4zffkrzrb.amplifyapp.com/'
+    # 'https://umg-payroll-platform.vercel.app/',
+    # 'https://main.d34sc4zffkrzrb.amplifyapp.com/'
     'http://localhost:3000',
     'http://localhost:8000',
     'http://127.0.0.1:8000',

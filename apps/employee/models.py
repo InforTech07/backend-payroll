@@ -96,34 +96,60 @@ class Employee(models.Model):
         salary_for_day = self.base_salary / days
         days_worked = (end_date - date_hiring_instance).days
 
-        if date_hiring_instance > start_date:
-            salary = (salary_for_day * days_worked) * 0.45
-            return salary
-        else:
+        if date_hiring_instance > end_date:
+            return 0
+        elif date_hiring_instance < start_date:
             return float(self.base_salary) *  0.45
+        else:
+            return 0
 
     def calculate_bono14(self, payroll_period):
         """
+        calculte bono14 employee.
         """
         base_salary = self.base_salary
-        end_date = payroll_period.end_date
+        days_worked = (payroll_period.end_date - self.date_hiring).days
+        if days_worked > 365:
+            return base_salary
+        else:
+            return  float(base_salary) * float(days_worked) / 365
+        
 
-        return base_salary
-    
     def calculate_aguinaldo(self, payroll_period):
         """
+        calculte aguinaldo employee.
         """
         base_salary = self.base_salary
-        end_date = payroll_period.end_date
+        diff = (payroll_period.end_date.year - self.date_hiring.year) * 12 + (payroll_period.end_date.month - self.date_hiring.month)
+        if diff > 12:
+            return base_salary
+        else:
+            return float(base_salary) * float(diff) / 12
 
-        return base_salary
 
     def get_calculate_payroll(self, payroll_period):
         """
             calculte payroll employee.
         """
+        if self.date_hiring > payroll_period.end_date:
+            return{
+                'gross_salary': 0,
+                'net_salary': 0,
+                'total_income': 0,
+                'total_deduction': 0,
+                'social_insurance_employee': 0,
+                'social_insurance_company': 0,
+                'gross_biweekly_salary': 0,
+                'net_biweekly_salary': 0,
+                'total_biweekly_deduction': 0,
+                'bono14': 0,
+                'aguinaldo': 0,
+            }
+
         social_insurance_employee = float(self.base_salary) * 0.0483
         social_insurance_company = float(self.base_salary) * 0.1067
+        bono14 = self.calculate_bono14(payroll_period)
+        aguinaldo = self.calculate_aguinaldo(payroll_period)
         biweekly_salary = self.calculate_salary_biweekly(payroll_period)
         total_income = sum([income.total for income in self.income_employee.filter(payroll_period=payroll_period)])
         total_deduction = sum([deduction.total for deduction in self.deduction_employee.filter(payroll_period=payroll_period)])
@@ -153,6 +179,8 @@ class Employee(models.Model):
             'gross_biweekly_salary': gross_salary_biweekly,
             'net_biweekly_salary': net_salary_biweekly,
             'total_biweekly_deduction': total_biweekly_deduction,
+            'bono14': bono14,
+            'aguinaldo': aguinaldo,
         }
 
         return data
@@ -203,48 +231,6 @@ class Employee(models.Model):
         }
         return data
 
-    # def calculte_bono14(self):
-    #     """
-    #     Calculate bono14.
-    #     """
-    #     # obtenemos la fecha actual
-    #     current_date = date.today()
-    #     # tiempo de trabajado hasta la fecha actual
-    #     time_worked = current_date.year - self.date_hiring.year
-
-    #     # caculamos le total de salarios devengados
-    #     previous_start_date = current_date.replace(year=current_date.year-1, month=1, day=1)
-    #     previous_end_date = current_date - timedelta(days=1)
-
-    #     accrued_salaries = self.payroll_employee.filter(
-    #         payroll_period__start_date__range=[previous_start_date, previous_end_date],
-    #         status_payroll='Pagada'
-    #     ).aggregate(total=Sum('total'))['total']
-
-    #     return bono14
-    
-    # def calculate_aguinaldo(self):
-    #     if self.hire_date.year == timezone.now().year:
-    #         days_worked = (timezone.now() - self.hire_date).days
-    #         aguinaldo = (self.salary / 365) * days_worked
-    #     else:
-    #         aguinaldo = (self.salary / 12)
-        
-    #     return aguinaldo
-    
-    # def calculate_severance(self):
-    #     if self.termination_date:
-    #         years_worked = (self.termination_date - self.hire_date).days / 365
-    #         severance_pay = self.salary * years_worked
-    #         return severance_pay
-    #     else:
-    #         return 0
-    
-    # def check_credit_available(self):
-    #     if self.credit_available > 0:
-    #         return True
-    #     else:
-    #         return False
     def get_employee_by_user(self, user):
         return Employee.objects.get(user=user)
         
@@ -298,8 +284,7 @@ class RequestAbsence(models.Model):
     """
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='request_absence_employee')
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='request_absence_company')
-    start_date = models.DateField()
-    end_date = models.DateField()
+    date_request = models.DateField()
     reason = models.CharField(max_length=255)
     REQUEST_STATUS = (
         ('PENDIENTE', 'Pendiente'),

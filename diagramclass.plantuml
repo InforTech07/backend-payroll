@@ -1,0 +1,372 @@
+@startuml payroll-platform
+class Company{
+    - id : int
+    - name  : string
+    - phone  : string
+    - description  : string
+    - address  : string
+    - picture  : string
+    - is_active  : boolean
+    - created_at  date
+    + create_company()
+    + update_company()
+    + delete_company()
+    + get_company()
+    + get_companies()
+}
+
+class User{
+    - id : int
+    - email  : string
+    - USERNAME_FIELD  : string
+    - REQUIRED_FIELDS : string
+    - role  : string
+    - picture  : string
+    - password  : string
+    - company  : int
+    - is_active  : boolean
+    - is_default_password  : boolean
+    + create_user()
+    + update_user()
+    + delete_user()
+    + get_user()
+}
+
+User "1" -- "0..*" Company
+
+class Department{
+    - id : int
+    - name  : string
+    - description  : string
+    - company  : int
+    - is_active  : boolean
+    + create_department()
+    + update_department()
+    + delete_department()
+    + get_departments_by_company()
+}
+
+Department "1" -- "0..*" Company
+
+class JobPosition{
+    - id : int
+    - name  : string
+    - description  : string
+    - company  : int
+    - is_active  : boolean
+    + create_job_position()
+    + update_job_position()
+    + delete_job_position()
+    + get_job_positions_by_company()
+}
+
+JobPosition "1" -- "0..*" Company
+
+class Employee{
+    - id : int
+    - first_name  : string
+    - last_name  : string
+    - phone  : string
+    - address  : string
+    - picture  : string
+    - dpi  : string
+    - date_hiring  date
+    - date_completion  date
+    - birth_date  date
+    - gender  : string
+    - base_salary  : int
+    - base_salary_initial  : int
+    - head_department  : boolean
+    - method_payment  : string
+    - bank  : string
+    - account_number  : string
+    - department  : int
+    - job_position  : int
+    - user  : int
+    - company  : int
+    - is_active  : boolean
+    + create_employee()
+    + update_employee()
+    + delete_employee()
+    + get_employees_by_company()
+}
+
+Employee "1" -- "0..*" Company
+Employee "1" -- "0..*" Department
+Employee "1" -- "0..*" JobPosition
+Employee "1" -- "0..*" User
+
+
+class EmployeeDocument{
+    - id : int
+    - name  : string
+    - file  : string
+    - employee  : int
+    - is_active  : boolean
+    + create_employee_document()
+    + update_employee_document()
+    + delete_employee_document()
+    + get_employee_documents_by_employee()
+}
+
+
+EmployeeDocument "1" -- "0..*" Employee
+
+class FamilyMember{
+    - id : int
+    - first_name  : string
+    - last_name  : string
+    - relationship  : string
+    -  gender  : string
+    - phone  : string
+    - employee  : int
+    - is_active  : boolean
+    - created_at  date
+
+    + create_family_member()
+    + update_family_member()
+    + delete_family_member()
+    + get_family_members_by_employee()
+}
+
+FamilyMember "1" -- "0..*" Employee
+
+class SalaryIncrease{
+    - id : int
+    - employee  : int
+    - amount  : int
+    - reason  : string
+    - is_active  : boolean
+    - created_at  date
+    + create_salary_increase()
+    + update_salary_increase()
+    + delete_salary_increase()
+    + get_salary_increases_by_employee()
+}
+
+SalaryIncrease "1" -- "0..*" Employee
+
+class RequestAbsence{
+    - id : int
+    - employee  : int
+    - company  : int
+    - start_date  date
+    - end_date  date
+    - reason  : string
+    - status  : string
+    - is_active  : boolean
+    - created_at  date
+    + create_request_absence()
+    + update_request_absence()
+    + delete_request_absence()
+    + get_request_absences_by_employee()
+} 
+
+RequestAbsence "1" -- "0..*" Employee
+RequestAbsence "1" -- "0..*" Company
+
+
+class Image{
+    - id : int
+    - picture  : string
+    - is_active  : boolean
+    - created_at  date
+    - updated_at  date
+    + create_image()
+    + get_images()
+}
+
+    
+
+class File{
+    - id : int
+    - file  : string
+    - is_active  : boolean
+    - created_at  date
+    - updated_at  date
+    + create_file()
+    + delete_file()
+}
+
+
+class PayrollPeriod{
+    - id : int
+    - name  : string
+    - start_date  date
+    - end_date  date
+    - type  : string
+    - company  : int
+    - is_open  : boolean
+    + create_payroll_period()
+    + update_payroll_period()
+    + get_payroll_periods_by_company()
+    + get_payroll_period()
+    + delete_payroll_period()
+}
+
+PayrollPeriod "1" -- "0..*" Company
+
+class Payroll{
+    - id : int
+    - company  : int
+    - payroll_period  : int
+    - date_generated  date
+    - total  : int
+    - is_open  : boolean
+    - is_active  : boolean
+    - created_at  date
+    + create_payroll()
+    + update_payroll()
+    + get_payrolls_by_company()
+    + get_payroll()
+}
+
+Payroll "1" -- "0..*" Company
+Payroll "1" -- "0..*" PayrollPeriod
+
+class PayrollDeduction{
+    - id : int
+    - employee  : int
+    - type_concept  : string
+    - quantity  : int
+    - amount  : int
+    - reason  : string
+    - total  : int
+    - date  date
+    - payroll_period  : int
+    + create_payroll_deduction()
+    + update_payroll_deduction()
+    + get_payroll_deductions_by_employee()
+    + get_payroll_deduction()
+    + get_payroll_deductions_by_payroll_period()
+}
+
+PayrollDeduction "1" -- "0..*" Employee
+PayrollDeduction "1" -- "0..*" PayrollPeriod
+
+class PayrollIncome{
+    - id : int
+    - employee  : int
+    - type_concept  : string
+    - quantity  : int
+    - amount  : int
+    - reason  : string
+    - total  : int
+    - date  date
+    - payroll_period  : int
+    + create_payroll_income()
+    + update_payroll_income()
+    + get_payroll_incomes_by_employee()
+    + get_payroll_income()
+    + get_payroll_incomes_by_payroll_period()
+}
+
+PayrollIncome "1" -- "0..*" Employee
+PayrollIncome "1" -- "0..*" PayrollPeriod
+
+class PayrollAccountingTransaction{
+    - id : int
+    - employee  : int
+    - type_concept  : string
+    - quantity  : int
+    - amount  : int
+    - reason  : string
+    - total  : int
+    - date  date
+    - payroll_period  : int
+    + create_payroll_AccountTransaction()
+    + update_payroll_AccountTransaction()
+    + get_payroll_AccountTransactions_by_employee()
+    + get_payroll_AccountTransaction()
+    + get_payroll_AccountTransactions_by_payroll_period()
+
+}
+
+PayrollAccountingTransaction "1" -- "0..*" Employee
+PayrollAccountingTransaction "1" -- "0..*" PayrollPeriod
+
+class TransferBank{
+    - id : int
+    - employee  : int
+    - date  date
+    - bank  : string
+    - account_number  : string
+    - reason  : string
+    - amount  : int
+    - is_active  : boolean
+    - created_at  date
+    - payroll_period  : int
+    + create_TransferBank()
+    + update_TransferBank()
+    + delete_TransferBank()
+    + get_transfer_banks_by_employee()
+    + get_transfer_bank()
+}
+
+
+TransferBank "1" -- "0..*" Employee
+TransferBank "1" -- "0..*" PayrollPeriod
+
+class TransferCash{
+    - id : int
+    - employee  : int
+    - date  date
+    - reason  : string
+    - amount  : int
+    - is_active  : boolean
+    - created_at  date
+    - payroll_period  : int
+    + create_Transfercash()
+    + update_Transfercash()
+    + delete_Transfercash()
+    + get_transfer_cashs_by_employee()
+    + get_transfer_cash()
+}
+
+TransferCash "1" -- "0..*" Employee
+TransferCash "1" -- "0..*" PayrollPeriod
+
+class PayrollConcept{
+    - id : int
+    - concept  : string
+    - employee  : int
+    - payroll_period  : int
+    - company  : int
+    - date  date
+    - reason  : string
+    - overtime_minutes  : int
+    - public_holiday  : boolean
+    - sales  : int
+    - production  : int
+    - amount  : int
+    - is_cancelled  : boolean
+    - is_active  : boolean
+    - created_at  date
+    + create_payroll_concept()
+    + update_payroll_concept()
+    + delete_payroll_concept()
+    + get_payroll_concepts_by_employee()
+    + get_payroll_concept()
+    + get_payroll_concepts_by_payroll_period()
+    + get_payroll_concepts_by_company()
+
+}
+
+PayrollConcept "1" -- "0..*" Employee
+PayrollConcept "1" -- "0..*" PayrollPeriod
+PayrollConcept "1" -- "0..*" Company
+
+class StorePurchase{
+  - id : int
+  - date  date
+  - total  : int
+  - cancelled  : boolean
+  - biweekly  : boolean
+  - employee  : int
+  - company  : int
+}
+
+StorePurchase "1" -- "0..*" Employee
+StorePurchase "1" -- "0..*" Company
+
+@enduml
